@@ -5,7 +5,7 @@ import matplotlib.patches as mpatches
 
 def rho_eq(ax=None):
     if ax is None:
-        fig, ax = plt.subplots(1, 1, constrained_layout=True)
+        fig, ax = plt.subplots(1, 1, constrained_layout=True, figsize=(8, 6))
         flag_show = True
     else:
         flag_show = False
@@ -35,7 +35,7 @@ def rho_eq(ax=None):
     ax.set_xlabel(r"$2D_r w_{1,1}/\bar{v}$", fontsize="xx-large")
     ax.set_ylabel(r"$\bar{\rho}\bar{v}'/\bar{v}$", fontsize="xx-large")
     if flag_show:
-        plt.savefig("rho_linear_stab_diagram.pdf")
+        plt.savefig("rho_linear_stab_diagram.png")
         # plt.show()
         plt.close()
     
