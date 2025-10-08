@@ -78,18 +78,51 @@ def adjust_density(s: hoomd.Frame, rho_new:float) -> hoomd.Frame:
     return s2
 
 
+def shift_pos(s: hoomd.Frame, dx: float, dy: float) -> hoomd.Frame:
+    Lx = s.configuration.box[0]
+    Ly = s.configuration.box[1]
+    N = s.particles.N
+    
+    pos = s.particles.position
+    charge = s.particles.charge
+
+    pos[:, 0] += dx
+    pos[:, 1] += dy
+
+    mask = pos[:, 0] > Lx / 2
+    pos[:, 0][mask] -= Lx
+    mask = pos[:, 0] < -Lx / 2
+    pos[:, 0][mask] += Lx
+
+    mask = pos[:, 1] > Ly / 2
+    pos[:, 1][mask] -= Ly
+    mask = pos[:, 1] < -Ly / 2
+    pos[:, 1][mask] += Ly
+
+    s2 = hoomd.Frame()
+    s2.configuration.box = [Lx, Ly, 1, 0, 0, 0]
+    s2.particles.N = N
+    s2.particles.position = pos
+    s2.particles.charge = charge
+    s2.configuration.step = 0
+    return s2
+
+
 if __name__ == "__main__":
     folder = "/mnt/sda/Fore_aft_QS/sli/"
     seed = 211001
     Dr = 5
-    basename = f"L60_15_Dr{Dr:.3f}_Dt0.000_r80_p60_e3.000_E0.500_h0.025_{seed:d}.gsd"
-    fname_in = f"{folder}/binodals/{basename}"
+    # basename = f"L60_15_Dr{Dr:.3f}_Dt0.000_r80_p80_e3.000_E0.500_h0.025_{seed:d}.gsd"
+    # fname_in = f"{folder}/binodals/{basename}"
+
+    basename = "L20_20_Dr3.000_Dt0.000_r80_p40_e3.000_E0.500_h0.025_1000.gsd"
+    fname_in = f"{folder}/{basename}"
 
     snap = get_frame(fname_in, flag_show=True)
 
     ### Just change filename
-    # Dr = 5
-    # fname_out = f"{folder}/built_snap/L60_15_Dr{Dr:.3f}_Dt0.000_r80_p40_e3.000_E0.500_h0.025_{seed:d}.gsd"
+    # Dr = 10
+    # fname_out = f"{folder}/built_snap/L60_15_Dr{Dr:.3f}_Dt0.000_r80_p80_e3.000_E0.500_h0.025_{seed:d}.gsd"
     # with hoomd.open(name=fname_out, mode="w") as fout:
     #     fout.append(snap)
 
@@ -102,9 +135,16 @@ if __name__ == "__main__":
 
 
     ### Adjust the density
-    phi = 80
-    snap2 = adjust_density(snap, phi)
-    fname_out = f"{folder}/built_snap/L60_15_Dr{Dr:.3f}_Dt0.000_r80_p{phi:g}_e3.000_E0.500_h0.025_{seed:d}.gsd"
+    # phi = 80
+    # snap2 = adjust_density(snap, phi)
+    # fname_out = f"{folder}/built_snap/L60_15_Dr{Dr:.3f}_Dt0.000_r80_p{phi:g}_e3.000_E0.500_h0.025_{seed:d}.gsd"
+    # with hoomd.open(name=fname_out, mode="w") as fout:
+    #     fout.append(snap2)
+
+
+    ### Shift pos
+
+    snap2 = shift_pos(snap, 9, 8)
+    fname_out = f"{folder}/L20_20_Dr3.000_Dt0.000_r80_p40_e3.000_E0.500_h0.010_2000.gsd"
     with hoomd.open(name=fname_out, mode="w") as fout:
         fout.append(snap2)
-
