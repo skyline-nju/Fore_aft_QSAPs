@@ -7,6 +7,60 @@ import os
 import sys
 
 
+def rot90(s: hoomd.Frame) -> hoomd.Frame:
+    Lx = s.configuration.box[0]
+    Ly = s.configuration.box[1]
+    N = s.particles.N
+    
+    pos = np.zeros_like(s.particles.position)
+    pos[:, 0] = -s.particles.position[:, 1]
+    pos[:, 1] = s.particles.position[:, 0]
+    pos[:, 2] = s.particles.position[:, 2] + np.pi /2
+    mask = pos[:, 2] > np.pi
+    pos[:, 2][mask] -= np.pi * 2
+
+    charge = s.particles.charge
+
+    s2 = hoomd.Frame()
+    s2.configuration.box = [Lx, Ly, 1, 0, 0, 0]
+    s2.particles.N = N
+    s2.particles.position = pos
+    s2.particles.charge = charge
+    s2.configuration.step = 0
+    return s2
+
+
+def duplicate(s: hoomd.Frame, nx:int, ny:int) -> hoomd.Frame:
+    lx = s.configuration.box[0]
+    ly = s.configuration.box[1]
+    Lx, Ly = lx * nx, ly * ny
+    N = s.particles.N * nx * ny
+    pos = np.zeros((N, 3), dtype=np.float32)
+    charge = np.zeros(N, dtype=np.float32)
+    
+    for row in range(ny):
+        dy = row * ly
+        for col in range(nx):
+            dx = col * lx
+            beg = (col + row * nx) * s.particles.N
+            end = beg + s.particles.N
+            pos[beg:end, 0] = s.particles.position[:, 0] + dx
+            pos[beg:end, 1] = s.particles.position[:, 1] + dy
+            pos[beg:end, 2] = s.particles.position[:, 2]
+            charge[beg:end] = s.particles.charge
+    mask = pos[:, 0] > Lx/2
+    pos[:, 0][mask] -= Lx
+    mask = pos[:, 1] > Ly/2
+    pos[:, 1][mask] -= Ly
+    s2 = hoomd.Frame()
+    s2.configuration.box = [Lx, Ly, 1, 0, 0, 0]
+    s2.particles.N = N
+    s2.particles.position = pos
+    s2.particles.charge = charge
+    s2.configuration.step = 0
+    return s2
+
+
 def scale(s: hoomd.Frame, nx: int, ny: int, eps=0) -> hoomd.Frame:
     lx = s.configuration.box[0]
     ly = s.configuration.box[1]
@@ -47,7 +101,7 @@ def scale(s: hoomd.Frame, nx: int, ny: int, eps=0) -> hoomd.Frame:
     return s2
 
 
-def adjust_density(s: hoomd.Frame, rho_new:float) -> hoomd.Frame:
+def adjust_density(s: hoomd.Frame, rho_new:float, mode:str="copy") -> hoomd.Frame:
     Lx = s.configuration.box[0]
     Ly = s.configuration.box[1]
     N = s.particles.N
@@ -63,11 +117,18 @@ def adjust_density(s: hoomd.Frame, rho_new:float) -> hoomd.Frame:
     if N_new > N:
         pos[:N] = data[:, 0:3]
         charge[:N] = data[:, 3]
-        pos[N:N_new] = data[N_new-N, 0:3]
-        charge[N:N_new] = data[N_new-N, 3]
+        if mode == "copy":
+            pos[N:N_new] = data[N_new-N, 0:3]
+            charge[N:N_new] = data[N_new-N, 3]
+        elif mode == "rand":
+            pos[N:N_new, 0] = (rng.random(N_new-N) - 0.5) * Lx
+            pos[N:N_new, 1] = (rng.random(N_new-N) - 0.5) * Ly
+            pos[N:N_new, 2] = (rng.random(N_new-N) - 0.5) * np.pi * 2
+            charge[N:N_new] = 1
     else:
         pos[:N_new] = data[:N_new, 0:3]
         charge[:N_new] = data[:N_new, 3]
+
 
     s2 = hoomd.Frame()
     s2.configuration.box = [Lx, Ly, 1, 0, 0, 0]
@@ -109,21 +170,32 @@ def shift_pos(s: hoomd.Frame, dx: float, dy: float) -> hoomd.Frame:
 
 
 if __name__ == "__main__":
-    folder = "/mnt/sda/Fore_aft_QS/sli/"
-    seed = 211001
-    Dr = 5
-    # basename = f"L60_15_Dr{Dr:.3f}_Dt0.000_r80_p80_e3.000_E0.500_h0.025_{seed:d}.gsd"
+    # folder = "/mnt/sda/Fore_aft_QS/sli/"
+    folder = "/mnt/sda/Fore_aft_QS/Offset/L30_r80_h0.1"
+    seed = 2001
+    Dr = 0.05
+    phi = 54
+    h = 0.1
+    # basename = f"L60_15_Dr{Dr:.3f}_Dt0.000_r80_p40_e3.000_E0.500_h0.025_{seed:d}.gsd"
     # fname_in = f"{folder}/binodals/{basename}"
 
-    basename = "L20_20_Dr3.000_Dt0.000_r80_p40_e3.000_E0.500_h0.025_1000.gsd"
+    basename = f"L30_30_Dr0.050_Dt0.000_r80_p{phi:g}_e3.000_E0.500_h{h:.3f}_{seed:d}.gsd"
     fname_in = f"{folder}/{basename}"
 
     snap = get_frame(fname_in, flag_show=True)
 
-    ### Just change filename
-    # Dr = 10
-    # fname_out = f"{folder}/built_snap/L60_15_Dr{Dr:.3f}_Dt0.000_r80_p80_e3.000_E0.500_h0.025_{seed:d}.gsd"
+
+    ### Duplication
+    # snap2 = duplicate(snap, 4, 1)
+    # fname_out = f"{folder}/L80_20_Dr0.010_Dt0.000_r80_p40_e3.000_a73.08_h0.010_211000.gsd"
     # with hoomd.open(name=fname_out, mode="w") as fout:
+    #     fout.append(snap2) 
+
+    ## Just change filename
+    # Dr = 0.3
+    # fname_out = f"{folder}/L20_20_Dr{Dr:.3f}_Dt0.000_r80_p40_e3.000_a73.08_h0.010_2000.gsd"
+    # with hoomd.open(name=fname_out, mode="w") as fout:
+    #     snap.configuration.step = 0
     #     fout.append(snap)
 
     ### Scale up
@@ -135,16 +207,18 @@ if __name__ == "__main__":
 
 
     ### Adjust the density
-    # phi = 80
-    # snap2 = adjust_density(snap, phi)
-    # fname_out = f"{folder}/built_snap/L60_15_Dr{Dr:.3f}_Dt0.000_r80_p{phi:g}_e3.000_E0.500_h0.025_{seed:d}.gsd"
-    # with hoomd.open(name=fname_out, mode="w") as fout:
-    #     fout.append(snap2)
+    phi = 56
+    # snap2 = rot90(snap)
+    snap2 = adjust_density(snap, phi, mode="rand")
+    seed = 2001
+    fname_out = f"{folder}/L30_30_Dr0.050_Dt0.000_r80_p{phi:g}_e3.000_E0.500_h0.100_{seed:d}.gsd"
+    with hoomd.open(name=fname_out, mode="w") as fout:
+        fout.append(snap2)
 
 
     ### Shift pos
 
-    snap2 = shift_pos(snap, 9, 8)
-    fname_out = f"{folder}/L20_20_Dr3.000_Dt0.000_r80_p40_e3.000_E0.500_h0.010_2000.gsd"
-    with hoomd.open(name=fname_out, mode="w") as fout:
-        fout.append(snap2)
+    # snap2 = shift_pos(snap, 9, 8)
+    # fname_out = f"{folder}/L20_20_Dr3.000_Dt0.000_r80_p40_e3.000_E0.500_h0.010_2000.gsd"
+    # with hoomd.open(name=fname_out, mode="w") as fout:
+    #     fout.append(snap2)

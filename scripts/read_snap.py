@@ -55,7 +55,6 @@ def read_one_frame(fname, i_frame):
 
 
 def get_frame(fname_in, i_frame=-1, flag_show=False):
-    i_frame = -1
     try:
         s = hoomd.Frame()
         with hoomd.open(name=fname_in, mode='r') as fin:

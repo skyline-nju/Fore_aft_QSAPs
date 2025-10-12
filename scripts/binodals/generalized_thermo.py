@@ -4,11 +4,7 @@ from scipy import integrate, optimize
 import sys
 sys.path.append("..")
 from scripts.quorum_sensing import get_v, get_vs
-
-
-def get_g0(rho, Dr, eta, w10, nu=0.9, rho0=1, v0=1):
-    v = get_v(rho, eta, nu, rho0, v0)
-    return np.log(rho * v) + 2 * Dr * w10 / v
+from comm_tangent import get_g0
 
 
 def get_varphi_prime(rho, Dr, eta, w10, w2_bar, nu=0.9, rho0=1, v0=1, rho_min=0):
@@ -60,14 +56,15 @@ def func_phase_equilibria(x_arr, Dr, eta, w10, w2_bar, nu=0.9, rho0=1, v0=1):
 if __name__ == "__main__":
     eps = 0.5
     w11 = 0.5 * eps
-    w20 = 0.25 * eps ** 2
-    w21 = 3 /40 + 1/2 * eps **2
+    w20 = 0.125 * eps ** 2
+    w21 = 3/40 + 1/4 * eps **2
     bar_w2 = 0.5 * (w20 + w21)
-    Dr = 3
+    Dr = 4
     eta = 3
 
-    rho_min = 0.2
-    rho_arr = np.linspace(rho_min, 1.175, 100)
+    rho_min = 1e-6
+    rho_arr = np.linspace(rho_min, 1.5, 1000)
+    # rho_arr = np.logspace(-7, np.log10(1.5), 200)
     varphi_prime_arr = np.zeros_like(rho_arr)
     varphi_arr = np.zeros_like(rho_arr)
     h0_arr = np.zeros_like(rho_arr)
@@ -84,5 +81,6 @@ if __name__ == "__main__":
     axes[0].plot(rho_arr, varphi_arr)
     axes[1].plot(rho_arr, g0_arr)
     axes[2].plot(rho_arr, h0_arr)
+    # axes[0].set_xscale("log")
     plt.show()
     plt.close()

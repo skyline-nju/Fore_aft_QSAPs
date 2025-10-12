@@ -34,7 +34,7 @@ def get_rho(v, eta, nu=0.9, rho0=1, v0=1):
     return nu / eta * np.arctanh((v/v0 - 1)/nu) * rho0 + rho0
 
 
-if __name__ == "__main__":
+def plot_v_dv_ddv():
     eps = 0.5
     w10 = 0.5 * eps
 
@@ -58,5 +58,20 @@ if __name__ == "__main__":
     axes[0].set_ylabel(r"$v$", fontsize="xx-large")
     axes[1].set_ylabel(r"$v'$", fontsize="xx-large")
     axes[2].set_ylabel(r"$v''$", fontsize="xx-large")
+    plt.show()
+    plt.close()
+
+
+if __name__ == "__main__":
+    rho_arr = np.linspace(0, 2, 200)
+
+    eta0 = 3
+    v, v_prime = get_v_dv(rho_arr, eta=eta0)
+
+    eta = rho_arr * v_prime / v
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, constrained_layout=True)
+    ax1.plot(rho_arr, v)
+    ax2.plot(rho_arr, eta)
     plt.show()
     plt.close()

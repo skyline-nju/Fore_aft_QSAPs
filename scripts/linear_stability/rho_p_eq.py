@@ -3,6 +3,13 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
 
+def cal_v_v_prime(rho, eta, rho0=1, v0=1, kappa=0.9):
+    f_tanh = np.tanh(eta/kappa * (rho-rho0)/rho0)
+    v = v0 * (1 + kappa * f_tanh)
+    v_prime = v0 * eta / rho0 * (1 - f_tanh**2)
+    return v, v_prime
+
+
 def eps_eta_plane(ax=None):
     if ax is None:
         fig, ax = plt.subplots(1, 1, constrained_layout=True, figsize=(8, 6))
@@ -30,13 +37,15 @@ def eps_eta_plane(ax=None):
     # w_{l, m} for the isotropic kernel shifted by distance eps
     eps = 0.5
     w11 = 0.5 * eps
-    w20 = 0.25 * eps ** 2
-    w21 = 3 /40 + 1/2 * eps **2
+    w20 = 1 / 8 * eps ** 2
+    w21 = 3 /40 + 1/4 * eps **2
     bar_w2 = 0.5 * (w20 + w21)
 
     # Tr(M) = 0
-    y = np.linspace(1/(2 * w11), ymax, 10000)
-    x = y * w11**2 + 0.5 * w11 * np.sqrt(4 * y**2 * w11 ** 2 -1)
+    qc = 1
+    # y = np.linspace(1/(2 * w11), ymax, 10000)
+    y = np.linspace(1, ymax, 1000)
+    x = y * w11**2 * qc**2 + 0.5 * qc * w11 * np.sqrt(4 * y**2 * w11**2 * qc**2 -1)
     ax.plot(x, y, c="tab:orange")
     ax.fill_betweenx(y, 0, x, color="tab:orange", alpha=0.25)
     
@@ -48,6 +57,14 @@ def eps_eta_plane(ax=None):
     x_r = 1/y + 1
     ax.fill_betweenx(y, x_l, x_r, color="tab:green", alpha=0.25) 
 
+    phi = 40 / 80
+    v, v_prime = cal_v_v_prime(phi, eta=3)
+    y = v_prime * phi / v
+    x1 = 2 * 0.05 * w11 / v
+    x2 = 2 * 1.5 * w11 / v
+    x3 = 2 * 1.5 * w11 / v
+    ax.plot(x1, y, "o", ms=5)
+    ax.plot(x2, y, "o", ms=5)
 
     ax.set_ylim(ymin, ymax)
     ax.set_xlim(xmin, xmax)
@@ -66,24 +83,18 @@ def eps_eta_plane(ax=None):
         plt.close()
 
 
-def cal_v_v_prime(rho, eta, rho0=1, v0=1, kappa=0.9):
-    f_tanh = np.tanh(eta/kappa * (rho-rho0)/rho0)
-    v = v0 * (1 + kappa * f_tanh)
-    v_prime = v0 * eta / rho0 * (1 - f_tanh**2)
-    return v, v_prime
-
 
 def density_Dr_plane():
     fig, ax = plt.subplots(1, 1, figsize=(6, 6), constrained_layout=True)
-    qc = 1
+    qc = 1.
     eps = 0.5
     w11 = 0.5 * eps
-    w20 = 0.25 * eps ** 2
-    w21 = 3 /40 + 1/2 * eps **2
+    w20 = 1 / 8 * eps ** 2
+    w21 = 3 /40 + 1/4 * eps **2
     bar_w2 = 0.5 * (w20 + w21)
 
     eta = 3
-    rho = np.linspace(0.05, 1.4, 3000)
+    rho = np.linspace(0.05, 1.5, 3000)
     v, v_prime = cal_v_v_prime(rho, eta)
     bar_eta = rho * v_prime / v
     Dr_LSI = v / (2 * w11) * (1 + 1/bar_eta)
@@ -105,10 +116,11 @@ def density_Dr_plane():
 
     ax.set_ylim(0, 5)
     ax.set_xlim(rho.min(), rho.max())
+    # ax.axhline(2.3)
     plt.show()
     plt.close()
 
 
 if __name__ == "__main__":
-    # eps_eta_plane()
-    density_Dr_plane()
+    eps_eta_plane()
+    # density_Dr_plane()
