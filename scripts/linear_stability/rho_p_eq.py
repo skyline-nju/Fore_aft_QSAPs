@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import sys
+sys.path.append("..")
+from scripts.quorum_sensing import get_eta_Pe
 
 
 def cal_v_v_prime(rho, eta, rho0=1, v0=1, kappa=0.9):
@@ -57,15 +60,19 @@ def eps_eta_plane(ax=None):
     x_r = 1/y + 1
     ax.fill_betweenx(y, x_l, x_r, color="tab:green", alpha=0.25) 
 
-    phi = 40 / 80
-    v, v_prime = cal_v_v_prime(phi, eta=3)
-    y = v_prime * phi / v
-    x1 = 2 * 0.05 * w11 / v
-    x2 = 2 * 1.5 * w11 / v
-    x3 = 2 * 1.5 * w11 / v
-    ax.plot(x1, y, "o", ms=5)
-    ax.plot(x2, y, "o", ms=5)
+    phi = 80 / 80
+    eta, Pe = get_eta_Pe(phi, eta0=3, Dr=0.1)
+    x = 0.25 / Pe
+    ax.plot(x, eta, "o")
 
+    x = 0.16 * 2 / Pe
+    ax.plot(x, eta, "o")
+
+    eta, Pe = get_eta_Pe(phi, eta0=3, Dr=5.5)
+    x = 0.25 / Pe
+    ax.plot(x, eta, "o")
+    x = 0.16 * 2 / Pe
+    ax.plot(x, eta, "o")
     ax.set_ylim(ymin, ymax)
     ax.set_xlim(xmin, xmax)
 
@@ -87,7 +94,7 @@ def eps_eta_plane(ax=None):
 def density_Dr_plane():
     fig, ax = plt.subplots(1, 1, figsize=(6, 6), constrained_layout=True)
     qc = 1.
-    eps = 0.5
+    eps = 0.1
     w11 = 0.5 * eps
     w20 = 1 / 8 * eps ** 2
     w21 = 3 /40 + 1/4 * eps **2

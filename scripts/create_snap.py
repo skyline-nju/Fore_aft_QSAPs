@@ -170,17 +170,17 @@ def shift_pos(s: hoomd.Frame, dx: float, dy: float) -> hoomd.Frame:
 
 
 if __name__ == "__main__":
-    # folder = "/mnt/sda/Fore_aft_QS/sli/"
-    folder = "/mnt/sda/Fore_aft_QS/Offset/L30_r80_h0.1"
-    seed = 2001
-    Dr = 0.05
-    phi = 54
-    h = 0.1
-    # basename = f"L60_15_Dr{Dr:.3f}_Dt0.000_r80_p40_e3.000_E0.500_h0.025_{seed:d}.gsd"
-    # fname_in = f"{folder}/binodals/{basename}"
+    folder = "/mnt/sda/Fore_aft_QS/sli/"
+    # folder = "/mnt/sda/Fore_aft_QS/Offset/L30_r80_h0.1"
+    seed = 211001
+    Dr = 2.28
+    phi = 40
+    h = 0.025
+    basename = f"L60_15_Dr{Dr:.3f}_Dt0.000_r80_p40_e3.000_E0.500_h0.025_{seed:d}.gsd"
+    fname_in = f"{folder}/binodals/{basename}"
 
-    basename = f"L30_30_Dr0.050_Dt0.000_r80_p{phi:g}_e3.000_E0.500_h{h:.3f}_{seed:d}.gsd"
-    fname_in = f"{folder}/{basename}"
+    # basename = f"L30_30_Dr0.050_Dt0.000_r80_p{phi:g}_e3.000_E0.500_h{h:.3f}_{seed:d}.gsd"
+    # fname_in = f"{folder}/{basename}"
 
     snap = get_frame(fname_in, flag_show=True)
 
@@ -192,11 +192,11 @@ if __name__ == "__main__":
     #     fout.append(snap2) 
 
     ## Just change filename
-    # Dr = 0.3
-    # fname_out = f"{folder}/L20_20_Dr{Dr:.3f}_Dt0.000_r80_p40_e3.000_a73.08_h0.010_2000.gsd"
-    # with hoomd.open(name=fname_out, mode="w") as fout:
-    #     snap.configuration.step = 0
-    #     fout.append(snap)
+    Dr = 1.
+    fname_out = f"{folder}/built_snap/L60_15_Dr{Dr:.3f}_Dt0.000_r80_p40_e3.000_E0.500_h0.025_{seed:d}.gsd"
+    with hoomd.open(name=fname_out, mode="w") as fout:
+        snap.configuration.step = 0
+        fout.append(snap)
 
     ### Scale up
     # Dr = 5
@@ -207,13 +207,13 @@ if __name__ == "__main__":
 
 
     ### Adjust the density
-    phi = 56
-    # snap2 = rot90(snap)
-    snap2 = adjust_density(snap, phi, mode="rand")
-    seed = 2001
-    fname_out = f"{folder}/L30_30_Dr0.050_Dt0.000_r80_p{phi:g}_e3.000_E0.500_h0.100_{seed:d}.gsd"
-    with hoomd.open(name=fname_out, mode="w") as fout:
-        fout.append(snap2)
+    # phi = 56
+    # # snap2 = rot90(snap)
+    # snap2 = adjust_density(snap, phi, mode="rand")
+    # seed = 2001
+    # fname_out = f"{folder}/L30_30_Dr0.050_Dt0.000_r80_p{phi:g}_e3.000_E0.500_h0.100_{seed:d}.gsd"
+    # with hoomd.open(name=fname_out, mode="w") as fout:
+    #     fout.append(snap2)
 
 
     ### Shift pos

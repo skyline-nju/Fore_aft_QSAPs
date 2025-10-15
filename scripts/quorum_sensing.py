@@ -34,6 +34,18 @@ def get_rho(v, eta, nu=0.9, rho0=1, v0=1):
     return nu / eta * np.arctanh((v/v0 - 1)/nu) * rho0 + rho0
 
 
+def get_eta(rho, eta0, nu=0.9, rho0=1, v0=1):
+    v, v_prime = get_v_dv(rho, eta0, nu, rho0, v0)
+    return v_prime * rho / v
+
+
+def get_eta_Pe(rho, eta0, Dr, nu=0.9, rho0=1, v0=1):
+    v, v_prime = get_v_dv(rho, eta0, nu, rho0, v0)
+    eta = v_prime * rho / v
+    Pe = v / Dr
+    return eta, Pe
+
+
 def plot_v_dv_ddv():
     eps = 0.5
     w10 = 0.5 * eps

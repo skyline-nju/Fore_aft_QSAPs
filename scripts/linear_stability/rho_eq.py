@@ -3,15 +3,15 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
 
-def rho_eq(ax=None):
+def LSI_PeA_vs_eta(ax=None, xlim=(-4, 4), ylim=(-5, 5)):
     if ax is None:
         fig, ax = plt.subplots(1, 1, constrained_layout=True, figsize=(8, 6))
         flag_show = True
     else:
         flag_show = False
     
-    ymax, ymin = 5, -5
-    xmin, xmax = -4, 4
+    ymin, ymax = ylim
+    xmin, xmax = xlim
 
     x = np.linspace(xmin, xmax, 1000)
     x1 = x [x < 1]
@@ -35,11 +35,11 @@ def rho_eq(ax=None):
     ax.set_xlabel(r"$2D_r w_{1,1}/\bar{v}$", fontsize="xx-large")
     ax.set_ylabel(r"$\bar{\rho}\bar{v}'/\bar{v}$", fontsize="xx-large")
     if flag_show:
-        plt.savefig("rho_linear_stab_diagram.png")
-        # plt.show()
+        # plt.savefig("rho_linear_stab_diagram.png")
+        plt.show()
         plt.close()
     
 
 
 if __name__ == "__main__":
-    rho_eq()
+    LSI_PeA_vs_eta()

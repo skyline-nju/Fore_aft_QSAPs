@@ -5,6 +5,7 @@ import os
 import sys
 sys.path.append("..")
 from scripts.read_snap import get_frame
+from rho_f1_f2_eq import eps_Dr_plane_3
 
 
 def get_para(L):
@@ -49,31 +50,28 @@ if __name__ == "__main__":
     fnpz = f"/mnt/sda/Fore_aft_QS/Offset/PD_eps_vs_Dr/L{L:g}_r40_e3.npz"
     with np.load(fnpz, "r") as data:
         eps, Dr, var_v = data["eps"], data["Dr"], data["var_v"]
+        mask = eps < 1
+        eps = eps[mask]
+        Dr = Dr[mask]
+        var_v = var_v[mask]
     
-    eta = 3
+    eta0 = 3
     w10 = 0.5 * eps
 
     fig, ax = plt.subplots(1, 1, constrained_layout=True)
-    ax.scatter(w10, Dr, c=var_v)
+    ax.scatter(eps, Dr, c=var_v)
+
+    qc = 1
+    Dr_arr, eps_c_arr = eps_Dr_plane_3(q_max=qc)
+    ax.plot(eps_c_arr, Dr_arr)
 
     y = np.logspace(-3, 0, 100)
-    qc = 1
-    x1 = 1 / eta * (1/(16 * y) + y / qc**2)
+    x1 = 2 / eta0 * (1/(16 * y) + y / qc**2)
     ax.plot(x1, y)
-
-    qc = np.pi
-    x1 = 1 / eta * (1/(16 * y) + y / qc**2)
-    ax.plot(x1, y)
-
-    qc = 1
-    x1 = 1 / eta * ( y / qc**2)
-    ax.plot(x1, y)
-
-
-    x3 = (1 + 1/eta) / (2 * y)
-    ax.plot(x3, y)
 
     ax.set_xscale("log")
     ax.set_yscale("log")
+    ax.set_xlim(8e-3, 1)
+    ax.set_ylim(1e-3, 1.05)
     plt.show()
     plt.close()

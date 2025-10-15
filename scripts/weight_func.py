@@ -17,15 +17,15 @@ def offset_kernel(psi, r, eps, l, m):
 def VC_kernel(psi, r, half_angle, l, m):
     if r < 1:
         prefactor  = 1 / (2 ** l * factorial(m, exact=True) * factorial(l-m, exact=True))
-        # res = prefactor * 3 / half_angle * (1 - r) * r**(l+1) * np.cos((l-2*m) * psi)
-        res = prefactor * 1 / half_angle  * r**(l+1) * np.cos((l-2*m) * psi)
+        res = prefactor * 3 / half_angle * (1 - r) * r**(l+1) * np.cos((l-2*m) * psi)
+        # res = prefactor * 1 / half_angle  * r**(l+1) * np.cos((l-2*m) * psi)
     else:
         res = 0
     return res
 
 
 if __name__ == "__main__":
-    l = 2
+    l = 1
     m = 0
     # eps_arr = np.linspace(0, 0.5, 50)
     # w10_arr = np.zeros_like(eps_arr)
@@ -50,6 +50,7 @@ if __name__ == "__main__":
     
     plt.plot(alpha_arr, w10_arr)
     plt.axhline(1/4, linestyle="dashed")
+    plt.axhline(1/8, linestyle="dashed")
     plt.axvline(np.pi/2)
     plt.axvline(1.275535, linestyle="dotted")
     plt.show()
