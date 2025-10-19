@@ -170,19 +170,19 @@ def shift_pos(s: hoomd.Frame, dx: float, dy: float) -> hoomd.Frame:
 
 
 if __name__ == "__main__":
-    folder = "/mnt/sda/Fore_aft_QS/sli/"
+    folder = "/mnt/sda/Fore_aft_QS/sli/binodals"
     # folder = "/mnt/sda/Fore_aft_QS/Offset/L30_r80_h0.1"
-    seed = 211001
-    Dr = 2.28
-    phi = 40
+    seed = 1000
+    Dr = 0.1
+    phi = 80
     h = 0.025
-    basename = f"L60_15_Dr{Dr:.3f}_Dt0.000_r80_p40_e3.000_E0.500_h0.025_{seed:d}.gsd"
-    fname_in = f"{folder}/binodals/{basename}"
+    basename = f"L60_15_Dr3.000_Dt0.000_r80_p40_e3.000_E0.500_h0.025_211001.gsd"
+    fname_in = f"{folder}/{basename}"
 
     # basename = f"L30_30_Dr0.050_Dt0.000_r80_p{phi:g}_e3.000_E0.500_h{h:.3f}_{seed:d}.gsd"
     # fname_in = f"{folder}/{basename}"
 
-    snap = get_frame(fname_in, flag_show=True)
+    snap = get_frame(fname_in, 77, flag_show=True)
 
 
     ### Duplication
@@ -192,11 +192,12 @@ if __name__ == "__main__":
     #     fout.append(snap2) 
 
     ## Just change filename
-    Dr = 1.
-    fname_out = f"{folder}/built_snap/L60_15_Dr{Dr:.3f}_Dt0.000_r80_p40_e3.000_E0.500_h0.025_{seed:d}.gsd"
-    with hoomd.open(name=fname_out, mode="w") as fout:
-        snap.configuration.step = 0
-        fout.append(snap)
+    # Dr = 1.
+    # fname_out = f"{folder}/built_snap/L60_15_Dr{Dr:.3f}_Dt0.000_r80_p40_e3.000_E0.500_h0.025_{seed:d}.gsd"
+    # fname_out = f"{folder}/built_snap/L20_20_Dr0.100_Dt0.000_r80_p80_e3.000_E0.250_h0.025_2000.gsd"
+    # with hoomd.open(name=fname_out, mode="w") as fout:
+    #     snap.configuration.step = 0
+    #     fout.append(snap)
 
     ### Scale up
     # Dr = 5
@@ -218,7 +219,7 @@ if __name__ == "__main__":
 
     ### Shift pos
 
-    # snap2 = shift_pos(snap, 9, 8)
-    # fname_out = f"{folder}/L20_20_Dr3.000_Dt0.000_r80_p40_e3.000_E0.500_h0.010_2000.gsd"
-    # with hoomd.open(name=fname_out, mode="w") as fout:
-    #     fout.append(snap2)
+    snap2 = shift_pos(snap, 30, 0)
+    fname_out = f"{folder}/L60_15_Dr3.000_Dt0.000_r80_p40_e3.000_E0.500_h0.025_211002.gsd"
+    with hoomd.open(name=fname_out, mode="w") as fout:
+        fout.append(snap2)

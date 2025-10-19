@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import glob
 import os
 import sys
+import rho_f1_f2_eq
 sys.path.append("..")
 from scripts.read_snap import get_frame
-from rho_f1_f2_eq import eps_Dr_plane_3
 
 
 def get_para(L):
@@ -43,10 +43,13 @@ def cal_var_v(L, eps_arr=None, Dr_arr=None):
     np.savez_compressed(fout, eps=eps_arr, Dr=Dr_arr, var_v=var_v_arr)
 
 
-if __name__ == "__main__":
-    L = 20
-    # cal_var_v(L=20)
-
+def plot_PD_eps_vs_Dr(ax=None):
+    if ax is None:
+        fig, ax = plt.subplots(1, 1, constrained_layout=True)
+        flag_show = True
+    else:
+        flag_show = False
+    
     fnpz = f"/mnt/sda/Fore_aft_QS/Offset/PD_eps_vs_Dr/L{L:g}_r40_e3.npz"
     with np.load(fnpz, "r") as data:
         eps, Dr, var_v = data["eps"], data["Dr"], data["var_v"]
@@ -58,20 +61,32 @@ if __name__ == "__main__":
     eta0 = 3
     w10 = 0.5 * eps
 
-    fig, ax = plt.subplots(1, 1, constrained_layout=True)
-    ax.scatter(eps, Dr, c=var_v)
+    cb = ax.scatter(eps, Dr, c=var_v)
 
     qc = 1
-    Dr_arr, eps_c_arr = eps_Dr_plane_3(q_max=qc)
-    ax.plot(eps_c_arr, Dr_arr)
-
+    Dr_arr, eps_c_arr = rho_f1_f2_eq.eps_Dr_plane_3(q_max=qc)
+    ax.plot(eps_c_arr, Dr_arr, c="tab:green")
+    ax.fill_betweenx(Dr_arr, eps_c_arr, 1, color="tab:green", alpha=0.25)
     y = np.logspace(-3, 0, 100)
     x1 = 2 / eta0 * (1/(16 * y) + y / qc**2)
-    ax.plot(x1, y)
+    ax.plot(x1, y, linestyle="dashed", c="tab:grey")
 
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlim(8e-3, 1)
     ax.set_ylim(1e-3, 1.05)
-    plt.show()
-    plt.close()
+
+
+
+    if flag_show:
+        plt.show()
+        plt.close()
+    else:
+        return cb
+
+
+if __name__ == "__main__":
+    L = 20
+    # cal_var_v(L=20)
+
+    plot_PD_eps_vs_Dr()

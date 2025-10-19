@@ -17,8 +17,8 @@ def offset_kernel(psi, r, eps, l, m):
 def VC_kernel(psi, r, half_angle, l, m):
     if r < 1:
         prefactor  = 1 / (2 ** l * factorial(m, exact=True) * factorial(l-m, exact=True))
-        res = prefactor * 3 / half_angle * (1 - r) * r**(l+1) * np.cos((l-2*m) * psi)
-        # res = prefactor * 1 / half_angle  * r**(l+1) * np.cos((l-2*m) * psi)
+        # res = prefactor * 3 / half_angle * (1 - r) * r**(l+1) * np.cos((l-2*m) * psi)
+        res = prefactor * 1 / half_angle  * r**(l+1) * np.cos((l-2*m) * psi)
     else:
         res = 0
     return res
@@ -51,7 +51,17 @@ if __name__ == "__main__":
     plt.plot(alpha_arr, w10_arr)
     plt.axhline(1/4, linestyle="dashed")
     plt.axhline(1/8, linestyle="dashed")
+    plt.axhline(0.33)
     plt.axvline(np.pi/2)
     plt.axvline(1.275535, linestyle="dotted")
+
+    plt.axvline(0.2435)
+
+    print(0.2435/np.pi * 180)
     plt.show()
     plt.close()
+
+
+    alpha = 13.95 / 180 * np.pi
+    I = integrate.dblquad(VC_kernel, 0, 1, -alpha, alpha, args=(alpha, l, m))
+    print(I[0])

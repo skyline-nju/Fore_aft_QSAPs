@@ -46,6 +46,11 @@ def get_eta_Pe(rho, eta0, Dr, nu=0.9, rho0=1, v0=1):
     return eta, Pe
 
 
+def get_gamma(f2_real, rho, eta0, nu=0.9, rho0=1, v0=1):
+    v, v_prime = get_v_dv(rho, eta0, nu, rho0, v0)
+    return f2_real * v_prime / v
+
+
 def plot_v_dv_ddv():
     eps = 0.5
     w10 = 0.5 * eps
