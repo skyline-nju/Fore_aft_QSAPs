@@ -51,7 +51,7 @@ if __name__ == "__main__":
     plt.plot(alpha_arr, w10_arr)
     plt.axhline(1/4, linestyle="dashed")
     plt.axhline(1/8, linestyle="dashed")
-    plt.axhline(0.33)
+    plt.axhline(0.35)
     plt.axvline(np.pi/2)
     plt.axvline(1.275535, linestyle="dotted")
 
@@ -63,5 +63,5 @@ if __name__ == "__main__":
 
 
     alpha = 13.95 / 180 * np.pi
-    I = integrate.dblquad(VC_kernel, 0, 1, -alpha, alpha, args=(alpha, l, m))
+    I = integrate.dblquad(VC_kernel, 0, 1, np.pi-alpha, np.pi + alpha, args=(alpha, l, m))
     print(I[0])

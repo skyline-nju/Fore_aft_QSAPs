@@ -54,6 +54,17 @@ def read_one_frame(fname, i_frame):
             return get_one_snap(f, i)
 
 
+def get_nframe(fname):
+    with fl.open(name=fname, mode="r") as f:
+        return f.nframes
+
+
+def get_nframe_L(fname):
+    with fl.open(name=fname, mode="r") as f:
+        Lx, Ly = f.read_chunk(frame=0, name="configuration/box")[:2]
+        return f.nframes, Lx, Ly 
+
+
 def get_frame(fname_in, i_frame=-1, flag_show=False):
     try:
         s = hoomd.Frame()
@@ -76,5 +87,31 @@ def get_frame(fname_in, i_frame=-1, flag_show=False):
     return s
 
 
+def get_frames(fname_in, beg_frame=0, end_frame=None, flag_show=False):
+    try:
+        s = hoomd.Frame()
+        with hoomd.open(name=fname_in, mode='r') as fin:
+            nframes = len(fin)
+            if end_frame is None:
+                end_frame = nframes
+            elif end_frame < 0:
+                end_frame += nframes
+            for i in range(beg_frame, end_frame):
+                yield fin[i]
+    except IndexError:
+        with fl.open(name=fname_in, mode="r") as f:
+            if end_frame is None:
+                end_frame = f.nframes
+            elif end_frame < 0:
+                end_frame += nframes
+            for i in range(beg_frame, end_frame):
+                yield get_one_snap(f, i)
+
+
 if __name__ == "__main__":
+    epyc01 = "/run/user/1000/gvfs/sftp:host=10.10.9.150,user=ps/home/ps/data"
+    folder = f"{epyc01}//Offset_negative/L21_r160_e-0.75"
+    fname = f"{folder}/L21_21_Dr0.010_Dt0.000_r160_p160_e-0.500_E-0.750_h0.050_1000.gsd"
+
+    frames = get_frames(fname)
     pass

@@ -200,6 +200,8 @@ def PeA_eta_plane(eps= 0.5, q_max=1, xlim=(-2, 2), ylim=(-4, 4)):
     x2 = (1 + y2) / y2
     ax.plot(x1, y1, x2, y2)
 
+    PeA, eta = get_SOI_line(eps=-0.9, read=True)
+    ax.plot(PeA, eta)
     eps = -0.6
     Dr = 0.01
     eta, Pe = get_eta_Pe(1, -0.5, Dr)
@@ -227,29 +229,51 @@ def PeA_eta_plane(eps= 0.5, q_max=1, xlim=(-2, 2), ylim=(-4, 4)):
     plt.close() 
 
 
-def get_SOI_line(eps= 0.5, q_max=1, eta_max=6, PeA_max=1):
-    w11 = eps * 0.5
-    w22 = w21 = 0
-    q_arr = np.logspace(-6, np.log10(q_max), 500)
-    eta_arr = -np.linspace(-eta_max, 0, 5000, endpoint=False)
-    PeA_arr = -np.linspace(-PeA_max, 0, 5000, endpoint=False)
+def get_SOI_line(eps=0.5, q_max=1, eta_max=6, PeA_max=3, save=False, read=False):
+    fnpz = "linear_stability/SOI_line/PeA_vs_eta/eps=%g.npz" % eps
+    if read:
+        with np.load(fnpz, "r") as data:
+            print("load", fnpz)
+            PeA_c, eta_arr = data["PeA"], data["eta"]
+    else:
+        q_arr = np.logspace(-6, np.log10(q_max), 500)
+        w22 = w21 = 0
+        w11 = eps * 0.5
+        if eps > 0:
+            eta_arr = -np.linspace(-eta_max, 0, 5000, endpoint=False)
+            PeA_arr = -np.linspace(-PeA_max, 0, 5000, endpoint=False)
 
-    PeA_c = np.zeros_like(eta_arr)
-    idx_c = 0
-    for j, eta in enumerate(eta_arr):
-        flag_found_SOI = False
-        for i in range(idx_c, PeA_arr.size):
-            Pe = 2 * w11 / PeA_arr[i]
-            a1, Delta_2, a3 = get_Routh_arr(q_arr, Pe, eta, w11, w21, w22)
-            if a3[0] > 0 and (Delta_2.min() < 0 or a1.min() < 0):
-                PeA_c[j] = PeA_arr[i]
-                idx_c = i
-                flag_found_SOI = True
-                break
-        if not flag_found_SOI:
-            break
-    mask = PeA_c > 0
-    return PeA_c[mask], eta_arr[mask]
+            PeA_c = np.zeros_like(eta_arr)
+            for j, eta in enumerate(eta_arr):
+                for i, PeA in enumerate(PeA_arr):
+                    Pe = 2 * w11 / PeA
+                    a1, Delta_2, a3 = get_Routh_arr(q_arr, Pe, eta, w11, w21, w22)
+                    if a3[0] > 0 and (Delta_2.min() < 0 or a1.min() < 0):
+                        PeA_c[j] = PeA_arr[i]
+                        idx_c = i
+                        flag_found_SOI = True
+                        break
+                # if not flag_found_SOI:
+                #     break
+            mask = PeA_c > 0
+            PeA_c, eta_arr = PeA_c[mask], eta_arr[mask]
+        else:
+            eta_arr = np.linspace(-1, 0, 5000, endpoint=False)
+            PeA_arr = -np.linspace(1e-6, 0.2, 5000)
+            PeA_c = np.zeros_like(eta_arr)
+
+            for j, eta in enumerate(eta_arr):
+                for i, PeA in enumerate(PeA_arr):
+                    Pe = 2 * w11 / PeA
+                    a1, Delta_2, a3 = get_Routh_arr(q_arr, Pe, eta, w11, w21, w22)
+                    if a3[0] > 0 and (Delta_2.min() < 0 or a1.min() < 0):
+                        continue
+                    else:
+                        PeA_c[j] = PeA
+                        break
+        if save:
+            np.savez_compressed(fnpz, eta=eta_arr, PeA=PeA_c)
+    return PeA_c, eta_arr
 
 
 def get_SOI_line_density_vs_Dr(eps=0.5, eta0=3, q_max=1, rho_max=1.7, Dr_max = 1):
@@ -271,7 +295,7 @@ def get_SOI_line_density_vs_Dr(eps=0.5, eta0=3, q_max=1, rho_max=1.7, Dr_max = 1
     return rho_arr[mask], Dr_c[mask]
 
 
-def plot_PeA_eta_plane(ax=None, xlim=(-1, 2), ylim=(-4, 4)):
+def plot_PeA_eta_plane(ax=None, xlim=(-1, 2), ylim=(-4, 4), show_inset=False):
     if ax is None:
         fig, ax = plt.subplots(1, 1, constrained_layout=True)
         flag_show = True
@@ -283,50 +307,56 @@ def plot_PeA_eta_plane(ax=None, xlim=(-1, 2), ylim=(-4, 4)):
 
 
     x = np.linspace(xmin, xmax, 1000)
-    x1 = x [x < 1]
-    x2 = x [x > 1]
-    y1 = 1 / (x1-1)
-    y2 = 1 / (x2 - 1)
+    x1_LSI = x [x < 1]
+    x2_LSI = x [x > 1]
+    y1_LSI = 1 / (x1_LSI - 1)
+    y2_LSI = 1 / (x2_LSI - 1)
     # ax.plot(x1, y1, c="tab:blue")
     # ax.plot(x2, y2, c="tab:blue")
-    ax.fill_between(x1, y1, ymin, color="tab:blue", alpha=0.25)
-    ax.fill_between(x2, y2, ymax, color="tab:blue", alpha=0.25)
-    
+    ax.fill_betweenx(y1_LSI, xmin, x1_LSI, color="tab:blue", alpha=0.25)
+    ax.fill_between(x2_LSI, y2_LSI, ymax, color="tab:blue", alpha=0.25)
+
+    if show_inset:
+        xlim_in = (-0.068, 0)
+        ylim_in = (-1.1, 0)
+        ax_in = ax.inset_axes([0.21, 0.57, 0.24, 0.3], xlim=xlim_in, ylim=ylim_in)
+        ax_in.fill_betweenx(y1_LSI, xlim_in[0], x1_LSI, color="tab:blue", alpha=0.25)
+        ax_in.set_yticks([-1, -0.5, 0])
+        ax_in.set_xticks([-0.05, 0])
+
     SOI_line = []
-    alpha_list = [0.75, 0.5, 0.25]
+    alpha_list = [0.8, 0.4, 0.2]
     cm = plt.get_cmap('tab20c')
-    color_list = [cm.colors[6], cm.colors[1], cm.colors[10]]
-    ls = ["dotted", "--", "-"]
-    for i, eps in enumerate([0.15, 0.25, 0.35]):
-        x, y = get_SOI_line(eps=eps)
+    color_list = ["tab:cyan", "tab:orange", cm.colors[9]]
+    ls = ["--", "dotted", "-"]
+    for i, eps in enumerate([0.25, 0.5, 0.9]):
+        x, y = get_SOI_line(eps=eps, read=True)
         line, = ax.plot(x, y, label=r"$%g$" % (eps / 2), color=color_list[i], linestyle=ls[i])
         SOI_line.append(line)
         ax.fill_betweenx(y, 0, x, color="tab:green", alpha=alpha_list[i], edgecolor="none")
-
-    line_legend = ax.legend(handles=SOI_line, title="$|w_{1,0}|=$", loc=(0.5, 0.55),
-        fontsize="large", borderpad=0.3, title_fontsize="x-large")
+        x, y = get_SOI_line(eps=-eps, read=True)
+        line, = ax.plot(x, y, label=r"$%g$" % (eps / 2), color=color_list[i], linestyle=ls[i])
+        ax.fill_betweenx(y, x, 0, color="tab:green", alpha=alpha_list[i], edgecolor="none")
+        if show_inset:
+            ax_in.plot(x, y, label=r"$%g$" % (eps / 2), color=color_list[i], linestyle=ls[i])
+            ax_in.fill_betweenx(y, x, 0, color="tab:green", alpha=alpha_list[i], edgecolor="none")  
+    line_legend = ax.legend(handles=SOI_line, title="$|w_{1}|=$", loc=(0.69, 0.18),
+        fontsize="x-large", borderpad=0.2, title_fontsize="x-large")
     ax.add_artist(line_legend)
-    eta, Pe = get_eta_Pe(1, eta0=3, Dr=0.1)
-    x = 0.25 / Pe
-    ax.plot(x, eta, "o", fillstyle="none", color="tab:red", ms=6)
-    x = 0.16 * 2 / Pe
-    ax.plot(x, eta, "x", fillstyle="none", color="tab:blue",ms=6) 
-    eta, Pe = get_eta_Pe(1, eta0=3, Dr=5.5)
-    x = 0.25 / Pe
-    ax.plot(x, eta, "p", fillstyle="none", color="tab:red", ms=6)
-    x = 0.16 * 2 / Pe
-    ax.plot(x, eta, "s", fillstyle="none", color="tab:blue", ms=6)    
-
-    ax.axhline(0, color="k")
-    ax.axvline(0, color="k")
+    
+    ax.axhline(0, color="tab:grey", lw=1)
+    ax.axvline(0, color="tab:grey", lw=1)
 
     ax.set_ylim(ymin, ymax)
     ax.set_xlim(xmin, xmax)
 
+    if show_inset:
+        ax.indicate_inset_zoom(ax_in, edgecolor="tab:grey", linestyle="-.")
+
     patches = [mpatches.Patch(color="tab:blue", label = 'Long-wave stationary', alpha=0.25),
                mpatches.Patch(color="tab:green", label = 'Short-wave oscillatory', alpha=0.25)]
 
-    ax.legend(handles=patches, loc=(0.46, 0.27), frameon=False, fontsize="large", title="Instability", title_fontsize="x-large")
+    ax.legend(handles=patches, loc=(0.02, 0.04), frameon=True, fontsize="large", title="Instability", title_fontsize="x-large")
 
     if flag_show:
         # plt.savefig("rho_linear_stab_diagram.png")
@@ -335,6 +365,8 @@ def plot_PeA_eta_plane(ax=None, xlim=(-1, 2), ylim=(-4, 4)):
         # plt.show()
         plt.savefig("fig/PeA_eta.pdf")
         plt.close()
+    elif show_inset:
+        return ax_in
 
 
 def plot_density_Dr_plane(eps, eta0=3, ax=None, xlim=(0, 1.7), ylim=(1e-3, 3)):
@@ -373,7 +405,9 @@ if __name__ == "__main__":
     # plt.close()
 
     # density_Dr_plane(eps=0.25, eta0=3, q_max=1)
-    PeA_eta_plane(eps=0.6)
+    # PeA_eta_plane(eps=0.9)
+
+    # get_SOI_line(eps=0.9, save=True)
 
     # for eps in [0.15, 0.25, 0.35]:
     #     PeA_c, eta = get_SOI_line(eps=eps)
@@ -381,6 +415,6 @@ if __name__ == "__main__":
     # plt.show()
     # plt.close()
 
-    # plot_PeA_eta_plane()
+    plot_PeA_eta_plane(xlim=(-2, 2), ylim=(-3.5, 3.5), show_inset=True)
 
     # plot_density_Dr_plane(eps=0.25)

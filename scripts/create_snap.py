@@ -114,12 +114,13 @@ def adjust_density(s: hoomd.Frame, rho_new:float, mode:str="copy") -> hoomd.Fram
     data[:, 0:3] = s.particles.position
     data[:, 3] = s.particles.charge
     rng.shuffle(data, axis=0)
+    print("N_old=%g, N_new=%g" % (N, N_new))
     if N_new > N:
         pos[:N] = data[:, 0:3]
         charge[:N] = data[:, 3]
         if mode == "copy":
-            pos[N:N_new] = data[N_new-N, 0:3]
-            charge[N:N_new] = data[N_new-N, 3]
+            pos[N:N_new] = data[:N_new-N, 0:3]
+            charge[N:N_new] = data[:N_new-N, 3]
         elif mode == "rand":
             pos[N:N_new, 0] = (rng.random(N_new-N) - 0.5) * Lx
             pos[N:N_new, 1] = (rng.random(N_new-N) - 0.5) * Ly
@@ -170,19 +171,23 @@ def shift_pos(s: hoomd.Frame, dx: float, dy: float) -> hoomd.Frame:
 
 
 if __name__ == "__main__":
-    folder = "/mnt/sda/Fore_aft_QS/sli/binodals"
+    epyc01 = "/run/user/1000/gvfs/sftp:host=10.10.9.150,user=ps/home/ps/data"
+    epyc02 = "/run/user/1000/gvfs/sftp:host=10.10.9.158,user=ps/home/ps/data"
+    # folder = f"{epyc01}/Fore_aft_QS/Offset2/L18_r80_varied_density"
+    folder = f"{epyc01}/Fore_aft_QS/Offset2/L60_20_r80_e0.25"
+    # folder = "/mnt/sda/Fore_aft_QS/Offset/binodals_e0.25"
     # folder = "/mnt/sda/Fore_aft_QS/Offset/L30_r80_h0.1"
     seed = 1000
     Dr = 0.1
     phi = 80
     h = 0.025
-    basename = f"L60_15_Dr3.000_Dt0.000_r80_p40_e3.000_E0.500_h0.025_211001.gsd"
+    basename = f"L60_20_Dr2.800_Dt0.000_r80_p48_e3.000_E0.250_h0.025_2000.gsd"
     fname_in = f"{folder}/{basename}"
 
     # basename = f"L30_30_Dr0.050_Dt0.000_r80_p{phi:g}_e3.000_E0.500_h{h:.3f}_{seed:d}.gsd"
     # fname_in = f"{folder}/{basename}"
 
-    snap = get_frame(fname_in, 77, flag_show=True)
+    snap = get_frame(fname_in, -1, flag_show=True)
 
 
     ### Duplication
@@ -192,34 +197,34 @@ if __name__ == "__main__":
     #     fout.append(snap2) 
 
     ## Just change filename
-    # Dr = 1.
-    # fname_out = f"{folder}/built_snap/L60_15_Dr{Dr:.3f}_Dt0.000_r80_p40_e3.000_E0.500_h0.025_{seed:d}.gsd"
-    # fname_out = f"{folder}/built_snap/L20_20_Dr0.100_Dt0.000_r80_p80_e3.000_E0.250_h0.025_2000.gsd"
+    # Dr = 2.6
+
+    # fname_out = f"tmp/L60_20_Dr{Dr:.3f}_Dt0.000_r80_p40_e3.000_E0.250_h0.025_2000.gsd"
     # with hoomd.open(name=fname_out, mode="w") as fout:
     #     snap.configuration.step = 0
     #     fout.append(snap)
 
     ### Scale up
     # Dr = 5
-    # snap2 = scale(snap, 2, 1)
-    # fname_out = f"{folder}/built_snap/L60_15_Dr{Dr:.3f}_Dt0.000_r80_p40_e3.000_E0.500_h0.025_21{seed:d}.gsd"
+    # snap2 = scale(snap, 2, 2)
+    # snap2 = adjust_density(snap2, 40)
+    # fname_out = f"{folder}/L60_20_Dr2.000_Dt0.000_r80_p40_e3.000_E0.250_h0.025_2000.gsd"
     # with hoomd.open(name=fname_out, mode="w") as fout:
     #     fout.append(snap2)
 
 
     ### Adjust the density
-    # phi = 56
-    # # snap2 = rot90(snap)
-    # snap2 = adjust_density(snap, phi, mode="rand")
-    # seed = 2001
-    # fname_out = f"{folder}/L30_30_Dr0.050_Dt0.000_r80_p{phi:g}_e3.000_E0.500_h0.100_{seed:d}.gsd"
-    # with hoomd.open(name=fname_out, mode="w") as fout:
-    #     fout.append(snap2)
+    phi = 48
+    seed = 2000
+    snap2 = adjust_density(snap, phi, mode="copy")
+    fname_out = f"tmp/L60_20_Dr3.000_Dt0.000_r80_p{phi:g}_e3.000_E0.250_h0.025_2000.gsd"
+    with hoomd.open(name=fname_out, mode="w") as fout:
+        fout.append(snap2)
 
 
     ### Shift pos
 
-    snap2 = shift_pos(snap, 30, 0)
-    fname_out = f"{folder}/L60_15_Dr3.000_Dt0.000_r80_p40_e3.000_E0.500_h0.025_211002.gsd"
-    with hoomd.open(name=fname_out, mode="w") as fout:
-        fout.append(snap2)
+    # snap2 = shift_pos(snap, -3, 7)
+    # fname_out = f"tmp/L20_20_Dr5.500_Dt0.000_r80_p80_e3.000_a125.06_h0.025_2001.gsd"
+    # with hoomd.open(name=fname_out, mode="w") as fout:
+    #     fout.append(snap2)
