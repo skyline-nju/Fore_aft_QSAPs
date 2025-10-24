@@ -155,40 +155,47 @@ def rho_Dr_plane():
 
 
 if __name__ == "__main__":
-    Dr_arr = np.linspace(0.01, 5, 100)
-    rho_arr = np.linspace(0, 1.5, 100)
+    # Dr_arr = np.linspace(0.01, 5, 100)
+    # rho_arr = np.linspace(0, 1.5, 100)
 
-    eps = 0.5
-    eta0 = 3
-    q_max = 1
-    q_arr = np.logspace(-6, np.log10(q_max), 500)
+    # eps = 0.5
+    # eta0 = 3
+    # q_max = 1
+    # q_arr = np.logspace(-6, np.log10(q_max), 500)
 
-    w11 = 0.5 * eps
-    w22 = w21 = 0
+    # w11 = 0.5 * eps
+    # w22 = w21 = 0
 
-    state = np.zeros((Dr_arr.size, rho_arr.size))
-    for j, Dr in enumerate(Dr_arr):
-        for i, rho in enumerate(rho_arr):
-            eta, Pe = get_eta_Pe(rho, eta0, Dr)
-            M = get_M(q_arr[0], 0, w11, Pe, eta)
-            sigma_re = np.max(linalg.eigvals(M).real)
-            if sigma_re > 0:
-                state[j, i] = 1
-            else:
-                for qx in q_arr:
-                    M = get_M(0, qx, w11, Pe, eta)
-                    # M = get_M3(qx, w11, Pe, eta)
-                    # M = get_M2(qx, w11, Pe, eta)
-                    sigma_re = np.max(linalg.eigvals(M).real)
-                    if sigma_re > 0:
-                        state[j, i] = 2
-                        break
-    extent = [rho_arr.min(), rho_arr.max(), Dr_arr.min(), Dr_arr.max()]
-    plt.imshow(state, origin="lower", extent=extent, aspect="auto")
+    # state = np.zeros((Dr_arr.size, rho_arr.size))
+    # for j, Dr in enumerate(Dr_arr):
+    #     for i, rho in enumerate(rho_arr):
+    #         eta, Pe = get_eta_Pe(rho, eta0, Dr)
+    #         M = get_M(q_arr[0], 0, w11, Pe, eta)
+    #         sigma_re = np.max(linalg.eigvals(M).real)
+    #         if sigma_re > 0:
+    #             state[j, i] = 1
+    #         else:
+    #             for qx in q_arr:
+    #                 M = get_M(0, qx, w11, Pe, eta)
+    #                 # M = get_M3(qx, w11, Pe, eta)
+    #                 # M = get_M2(qx, w11, Pe, eta)
+    #                 sigma_re = np.max(linalg.eigvals(M).real)
+    #                 if sigma_re > 0:
+    #                     state[j, i] = 2
+    #                     break
+    # extent = [rho_arr.min(), rho_arr.max(), Dr_arr.min(), Dr_arr.max()]
+    # plt.imshow(state, origin="lower", extent=extent, aspect="auto")
 
-    plt.axvline(0.5, linestyle="dashed", color="w")
-    plt.axvline(1, linestyle="dashed", color="w")
-    plt.axhline(0.1)
-    plt.show()
-    plt.close()
+    # plt.axvline(0.5, linestyle="dashed", color="w")
+    # plt.axvline(1, linestyle="dashed", color="w")
+    # plt.axhline(0.1)
+    # plt.show()
+    # plt.close()
 
+    q = 1
+    w11 = 0.25
+    Pe = 1
+    eta = 3
+
+    M = get_M3(q, w11, Pe, eta)
+    print(M)

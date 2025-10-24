@@ -130,9 +130,10 @@ def PD_rho_Dr(eps, ms=0.05, frac=1., eta0=3):
         h = 0.025
         seed = 1000
         root = "/mnt/sda/Fore_aft_QS/Offset/L30_r80"
-        rho_arr = np.array([10, 30, 50, 70, 90, 110])
-        # Dr_arr = np.array([0.1, 0.3, 0.7, 1, 1.5, 2, 3])
-        Dr_arr = np.array([0.1, 0.5, 1, 1.5, 2, 3])
+        # rho_arr = np.array([10, 30, 50, 70, 90, 110])
+        rho_arr = np.array([10, 20, 40, 60, 80, 100])
+        Dr_arr = np.array([0.1, 0.3, 1, 1.5, 3])
+        # Dr_arr = np.array([0.1, 0.5, 1, 1.5, 2, 3])
     nrows = Dr_arr.size
     ncols = rho_arr.size
     if ncols == nrows:
@@ -163,12 +164,54 @@ def PD_rho_Dr(eps, ms=0.05, frac=1., eta0=3):
     add_xlabel(fig, axes, "bottom", "", rho_arr / 80, fontsize)
     add_ylabel(fig, axes, "left", "", Dr_arr, fontsize, vertical=True, reverse=True)
 
-    fout_name = f"fig/snaps_f03.png"
+    fout_name = f"fig/snaps2.jpg"
+
+    plt.savefig(fout_name, dpi=200)
+    # plt.show()
+    plt.close()
+
+def PD_rho_Dr_PRL(eps, ms=0.05, frac=1., eta0=3):
+    if eps == 0.5:
+        L = 30
+        rho0 = 80
+        h = 0.025
+        seed = 1000
+        root = "/mnt/sda/Fore_aft_QS/Offset/L30_r80"
+        rho_arr = np.array([10, 20, 40, 60, 80, 100])
+        Dr_arr = np.array([0.1, 0.3, 1, 1.5, 3])
+    nrows = Dr_arr.size
+    ncols = rho_arr.size
+    if ncols == nrows:
+        figsize = (ncols * 2 + 0.25, nrows * 2 + 0.25)
+    elif ncols > nrows:
+        figsize = (ncols * 2 + 0.25, nrows * 2 + 0.15)
+    else:
+        figsize = (ncols * 2 + 0.5, nrows * 2 + 0.25)
+    print(figsize)
+
+    fig, axes = plt.subplots(nrows, ncols, figsize=figsize, sharex=True, sharey=True)
+
+
+    file_pat = f"{root}/L{L:d}_{L:d}_Dr%.3f_Dt0.000_r{rho0:g}_p%g_e{eta0:.3f}_E{eps:.3f}_h{h:.3f}_{seed}.gsd"
+
+    rect = [0.010, 0.006, 1.012, 1.013]
+    for j, Dr in enumerate(Dr_arr[::-1]):
+        for i, rho in enumerate(rho_arr):
+            fin = file_pat % (Dr, rho)
+            print(fin)
+            if os.path.exists(fin):
+                plot_one_panel(fin, ax=axes[j, i], ms=ms, color_coding="ori", frac=0.5)
+            axes[j, i].axis("off")
+    plt.tight_layout(h_pad=0.1, w_pad=0.1, pad=1.1, rect=rect)
+    fontsize = 18
+    add_xlabel(fig, axes, "bottom", "", rho_arr / 80, fontsize)
+    add_ylabel(fig, axes, "left", "", Dr_arr, fontsize, vertical=True, reverse=True)
+
+    fout_name = f"fig/snaps2.jpg"
 
     plt.savefig(fout_name, dpi=300)
     # plt.show()
     plt.close()
-
 
 if __name__ == "__main__":
     epyc01 = "/run/user/1000/gvfs/sftp:host=10.10.9.150,user=ps/home/ps/data"
@@ -181,7 +224,7 @@ if __name__ == "__main__":
     # fname = f"{epyc01}/{folder}/L20_20_Dr0.100_Dt0.000_r80_p80_e-2.000_E0.000_h0.100_1000.gsd"
     # plot_one_panel(fname, color_coding="ori")
 
-    # PD_rho_Dr(eps=0.5, frac=0.5, ms=0.05)
+    PD_rho_Dr_PRL(eps=0.5, frac=0.5, ms=0.05)
 
     # Dr_arr = np.array([0.01, 0.02, 0.04, 0.06, 0.08, 0.1, 0.2, 0.4, 0.6, 0.8, 1])
     # gamma_arr = np.array([0.01, 0.02, 0.04, 0.06, 0.08, 0.1, 0.2, 0.4, 0.6, 0.8, 1, 2, 4, 6, 8, 10, 20])
@@ -189,10 +232,10 @@ if __name__ == "__main__":
     # PD_gamma_Dr(gamma_arr, Dr_arr, ms=0.025, frac=0.5, eta=4)
     # PD_gamma_Dr(gamma_arr, Dr_arr, ms=0.025, frac=0.5, eta=2)
 
-    from read_snap import get_frames
-    folder = f"{epyc01}/Fore_aft_QS/Offset_negative/L21_r160_e-0.75"
-    fname = f"{folder}/L21_21_Dr0.010_Dt0.000_r160_p160_e-0.500_E-0.750_h0.050_1000.gsd"
+    # from read_snap import get_frames
+    # folder = f"{epyc01}/Fore_aft_QS/Offset_negative/L21_r160_e-0.75"
+    # fname = f"{folder}/L21_21_Dr0.010_Dt0.000_r160_p160_e-0.500_E-0.750_h0.050_1000.gsd"
 
-    frames = get_frames(fname)
-    for frame in frames:
-        plot_one_panel(snap=frame, color_coding="ori")
+    # frames = get_frames(fname)
+    # for frame in frames:
+    #     plot_one_panel(snap=frame, color_coding="ori")

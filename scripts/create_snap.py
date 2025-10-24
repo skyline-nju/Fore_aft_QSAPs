@@ -181,7 +181,7 @@ if __name__ == "__main__":
     Dr = 0.1
     phi = 80
     h = 0.025
-    basename = f"L60_20_Dr2.800_Dt0.000_r80_p48_e3.000_E0.250_h0.025_2000.gsd"
+    basename = f"L60_20_Dr1.400_Dt0.000_r80_p34_e3.000_E0.250_h0.025_2000.gsd"
     fname_in = f"{folder}/{basename}"
 
     # basename = f"L30_30_Dr0.050_Dt0.000_r80_p{phi:g}_e3.000_E0.500_h{h:.3f}_{seed:d}.gsd"
@@ -197,7 +197,7 @@ if __name__ == "__main__":
     #     fout.append(snap2) 
 
     ## Just change filename
-    # Dr = 2.6
+    # Dr = 1.5
 
     # fname_out = f"tmp/L60_20_Dr{Dr:.3f}_Dt0.000_r80_p40_e3.000_E0.250_h0.025_2000.gsd"
     # with hoomd.open(name=fname_out, mode="w") as fout:
@@ -214,10 +214,10 @@ if __name__ == "__main__":
 
 
     ### Adjust the density
-    phi = 48
+    phi = 68
     seed = 2000
     snap2 = adjust_density(snap, phi, mode="copy")
-    fname_out = f"tmp/L60_20_Dr3.000_Dt0.000_r80_p{phi:g}_e3.000_E0.250_h0.025_2000.gsd"
+    fname_out = f"tmp/L60_20_Dr1.500_Dt0.000_r160_p{phi:g}_e3.000_E0.250_h0.025_2000.gsd"
     with hoomd.open(name=fname_out, mode="w") as fout:
         fout.append(snap2)
 

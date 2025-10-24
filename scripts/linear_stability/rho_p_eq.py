@@ -94,7 +94,7 @@ def eps_eta_plane(ax=None):
 def density_Dr_plane():
     fig, ax = plt.subplots(1, 1, figsize=(6, 6), constrained_layout=True)
     qc = 1.
-    eps = 0.1
+    eps = 0.25
     w11 = 0.5 * eps
     w20 = 1 / 8 * eps ** 2
     w21 = 3 /40 + 1/4 * eps **2
@@ -129,5 +129,5 @@ def density_Dr_plane():
 
 
 if __name__ == "__main__":
-    eps_eta_plane()
-    # density_Dr_plane()
+    # eps_eta_plane()
+    density_Dr_plane()

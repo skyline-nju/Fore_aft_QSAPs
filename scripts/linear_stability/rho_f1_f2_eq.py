@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 import sys
 sys.path.append("..")
 from scripts.quorum_sensing import get_eta_Pe, get_v_dv
@@ -276,23 +277,32 @@ def get_SOI_line(eps=0.5, q_max=1, eta_max=6, PeA_max=3, save=False, read=False)
     return PeA_c, eta_arr
 
 
-def get_SOI_line_density_vs_Dr(eps=0.5, eta0=3, q_max=1, rho_max=1.7, Dr_max = 1):
-    w11 = eps * 0.5
-    w22 = w21 = 0
-    q_arr = np.logspace(-6, np.log10(q_max), 500)
-    rho_arr = np.linspace(0.1, rho_max, 500)
-    Dr_arr = -np.linspace(-Dr_max, -1e-3, 500)
+def get_SOI_line_density_vs_Dr(eps=0.5, eta0=3, q_max=1, rho_max=1.7, Dr_max = 1, load_existed_data=False):
+    fout = f"linear_stability/SOI_line/rho_vs_Dr/rho_f1_f2_eq/{eps:g}.npz"
+    if load_existed_data and os.path.exists(fout):
+        with np.load(fout, "r") as data:
+            rho_arr = data["rho"]
+            Dr_c = data["Dr"]
+        print("load SOI line from", fout)
+    else:
+        w11 = eps * 0.5
+        w22 = w21 = 0
+        q_arr = np.logspace(-6, np.log10(q_max), 500)
+        rho_arr = np.linspace(0.1, rho_max, 500)
+        Dr_arr = -np.linspace(-Dr_max, -1e-3, 500)
 
-    Dr_c = np.zeros_like(rho_arr)
-    for j, rho in enumerate(rho_arr):
-        for i, Dr in enumerate(Dr_arr):
-            eta, Pe = get_eta_Pe(rho, eta0, Dr)
-            a1, Delta_2, a3 = get_Routh_arr(q_arr, Pe, eta, w11, w21, w22)
-            if a3[0] > 0 and (Delta_2.min() < 0 or a1.min() < 0):
-                Dr_c[j] = Dr
-                break
-    mask = Dr_c > 0
-    return rho_arr[mask], Dr_c[mask]
+        Dr_c = np.zeros_like(rho_arr)
+        for j, rho in enumerate(rho_arr):
+            for i, Dr in enumerate(Dr_arr):
+                eta, Pe = get_eta_Pe(rho, eta0, Dr)
+                a1, Delta_2, a3 = get_Routh_arr(q_arr, Pe, eta, w11, w21, w22)
+                if a3[0] > 0 and (Delta_2.min() < 0 or a1.min() < 0):
+                    Dr_c[j] = Dr
+                    break
+        mask = Dr_c > 0
+        rho_arr, Dr_c = rho_arr[mask], Dr_c[mask]
+        np.savez_compressed(fout, rho=rho_arr, Dr=Dr_c)
+    return rho_arr, Dr_c
 
 
 def plot_PeA_eta_plane(ax=None, xlim=(-1, 2), ylim=(-4, 4), show_inset=False):
@@ -385,7 +395,7 @@ def plot_density_Dr_plane(eps, eta0=3, ax=None, xlim=(0, 1.7), ylim=(1e-3, 3)):
     # ax.plot(rho, Dr_LSI)
     ax.fill_between(rho, Dr_LSI, ylim[-1], color="tab:blue", alpha=0.25)
 
-    x, y = get_SOI_line_density_vs_Dr(eps, eta0)
+    x, y = get_SOI_line_density_vs_Dr(eps, eta0, load_existed_data=True)
     # ax.plot(x, y)
     ax.fill_between(x, 0, y, color="tab:green", alpha=0.25)
     ax.set_xlim(xlim[0], xlim[-1])

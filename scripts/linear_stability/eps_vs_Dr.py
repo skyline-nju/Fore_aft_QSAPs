@@ -71,10 +71,25 @@ def plot_PD_eps_vs_Dr(ax=None):
     x1 = 2 / eta0 * (1/(16 * y) + y / qc**2)
     ax.plot(x1, y, linestyle="dashed", c="tab:grey")
 
+
+    from kinetic_eqs import get_SOI_line_eps_vs_Dr
+
+    x, y = get_SOI_line_eps_vs_Dr(K=2, D_K_on=True)
+    ax.plot(x, y, "-.")
+
+    x, y = get_SOI_line_eps_vs_Dr(K=2, D_K_on=False)
+    ax.plot(x, y)
+
+    x, y = get_SOI_line_eps_vs_Dr(K=3, D_K_on=False)
+    ax.plot(x, y, ":")
+
+    x, y = get_SOI_line_eps_vs_Dr(K=4, D_K_on=False)
+    ax.plot(x, y, "--")
+
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlim(8e-3, 1)
-    ax.set_ylim(1e-3, 1.05)
+    ax.set_ylim(5e-3, 1.05)
 
 
 

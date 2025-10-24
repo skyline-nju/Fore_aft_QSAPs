@@ -75,12 +75,22 @@ if __name__ == "__main__":
     folder = "/mnt/sda/Fore_aft_QS/sli/"
 
     rho0 = 80
-    Dr = 2.3
-    for phi in [40, 60]:
+    Dr = 2.24
+    for phi in [40]:
         basename = f"L60_15_Dr{Dr:.3f}_Dt0.000_r{rho0:g}_p{phi:g}_e3.000_E0.500_h0.025_211001.gsd"
         fname_in = f"{folder}/binodals/{basename}"
-        x, rho_x = time_ave(fname_in, Lx=60, Ly=15, dx=0.25, beg_frame=30)
+        if phi == 20:
+            beg_frame = 170
+        else:
+            beg_frame = 80
+        x, rho_x = time_ave(fname_in, Lx=60, Ly=15, dx=0.25, beg_frame=beg_frame)
         plt.plot(x, rho_x/rho0)
+
+        # if phi == 80:
+        #     mask = np.logical_and(x > 10, x < 50)
+        #     rho_l = np.mean(rho_x[mask]) / rho0
+        #     print("rho_l=", rho_l)
+        #     plt.axhline(rho_l, linestyle="dashed")
 
     # plt.yscale("log")
     plt.show()
