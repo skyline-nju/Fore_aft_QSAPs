@@ -83,15 +83,28 @@ def cal_Sq_t_rho(density_file, dx, dt=None, L=None):
 def update_Sk():
     epyc01 = "/run/user/1000/gvfs/sftp:host=10.10.9.150,user=ps/home/ps/data"
     epyc02 = "/run/user/1000/gvfs/sftp:host=10.10.9.158,user=ps/home/ps/data"
+    epyc02_sda = "/run/user/1000/gvfs/sftp:host=10.10.9.158,user=ps/mnt/sda"
     sli = "/run/user/1000/gvfs/sftp:host=10.10.14.155,port=10066,user=sli/home/sli/yduan"
-
-    folder1 = f"{epyc01}/Fore_aft_QS/Offset_MPI/L240"
-    folder2 = f"{epyc02}/Fore_aft_QS/Offset_MPI/L120"
-    folder3 = f"{epyc02}/Fore_aft_QS/Offset_MPI/L240"
-    folder4 = f"{sli}/Offset_MPI/L120"
-    folder5 = f"{sli}/Offset_MPI/L480"
-
-    fgsds = glob.glob(f"{folder1}/*.gsd") + glob.glob(f"{folder2}/*.gsd") + glob.glob(f"{folder3}/*.gsd") + glob.glob(f"{folder4}/*.gsd") + glob.glob(f"{folder5}/*.gsd")
+    folders = [
+        f"{epyc01}/Fore_aft_QS/Offset_MPI/L110",
+        f"{epyc01}/Fore_aft_QS/Offset_MPI/L240",
+        f"{epyc02}/Fore_aft_QS/Offset_MPI/L120",
+        f"{epyc02}/Fore_aft_QS/Offset_MPI/L240",
+        f"{epyc02}/Fore_aft_QS/Offset_MPI/L360",
+        f"{epyc02}/Fore_aft_QS/Offset_MPI/L120_eps0.25",
+        f"{epyc02}/Fore_aft_QS/Offset_MPI/L220_eps0.1",
+        f"{epyc02_sda}/Offset_QS/L480",
+        f"{epyc02_sda}/Offset_QS/L360",
+        f"{epyc02}/Fore_aft_QS/Offset_negative_MPI/L152",
+        f"{epyc02}/Fore_aft_QS/Offset_negative_MPI/L304",
+        f"{sli}/Offset_MPI/L120",
+        f"{sli}/Offset_MPI/L240",
+        f"{sli}/Offset_MPI/L360",
+        f"/home/ps/data/VCQS/offset/L768"
+    ]
+    fgsds = []
+    for folder in folders:
+        fgsds += glob.glob(f"{folder}/*.gsd")
     dx = 0.25
     f_cg = []
     for fgsd in fgsds:
@@ -101,8 +114,6 @@ def update_Sk():
     
     for f in f_cg:
         cal_Sq_t_rho(f, dx)
-    
-
 
 
 if __name__ == "__main__":
@@ -115,13 +126,13 @@ if __name__ == "__main__":
                f"{folder}/L120_120_Dr1.500_Dt0.000_r80_p20_e3.000_E0.500_h0.050_1000.npz"
                ]
     
-    # f_snaps = [f"{folder}/L120_120_Dr2.300_Dt0.000_r40_p10_e3.000_E0.500_h0.050_1000.npz",
-    #            f"{folder}/L120_120_Dr2.200_Dt0.000_r40_p10_e3.000_E0.500_h0.050_1000.npz",
-    #            f"{folder}/L120_120_Dr2.000_Dt0.000_r40_p8_e3.000_E0.500_h0.100_1000.npz",
-    #            f"{folder}/L120_120_Dr2.000_Dt0.000_r40_p6_e3.000_E0.500_h0.100_1000.npz",
-    #         #    f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p8_e3.000_E0.500_h0.100_1000.npz",
-    #         #    f"{folder}/L120_120_Dr1.500_Dt0.000_r80_p20_e3.000_E0.500_h0.050_1000.npz"
-    #            ]
+    f_snaps = [f"{folder}/L120_120_Dr2.300_Dt0.000_r40_p10_e3.000_E0.500_h0.050_1000.npz",
+               f"{folder}/L120_120_Dr2.200_Dt0.000_r40_p10_e3.000_E0.500_h0.050_1000.npz",
+            #    f"{folder}/L120_120_Dr2.000_Dt0.000_r40_p8_e3.000_E0.500_h0.100_1000.npz",
+               f"{folder}/L120_120_Dr2.000_Dt0.000_r40_p6_e3.000_E0.500_h0.100_1000.npz",
+            #    f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p8_e3.000_E0.500_h0.100_1000.npz",
+            #    f"{folder}/L120_120_Dr1.500_Dt0.000_r80_p20_e3.000_E0.500_h0.050_1000.npz"
+               ]
     # f_snaps = [f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p10_e3.000_E0.500_h0.100_1000.npz",
     #            f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p8_e3.000_E0.500_h0.100_1000.npz",
     #         #    f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p7_e3.000_E0.500_h0.100_1000.npz",
@@ -130,25 +141,99 @@ if __name__ == "__main__":
     #         #    f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p4_e3.000_E0.500_h0.100_1000.npz"
     #            ]
 
-    # f_snaps = [f"{folder}/L240_240_Dr3.000_Dt0.000_r40_p40_e3.000_E0.500_h0.100_1000.npz",
-    #            f"{folder}/L120_120_Dr3.000_Dt0.000_r30_p28.5_e3.000_E0.500_h0.100_1000.npz",
-    #            f"{folder}/L480_480_Dr3.000_Dt0.000_r30_p28.5_e3.000_E0.500_h0.100_1000.npz",
-    #           ]
-    f_snaps = [f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p6_e3.000_E0.500_h0.100_1000.npz",
-               f"{folder}/L120_120_Dr3.000_Dt0.000_r30_p4_e3.000_E0.500_h0.100_1000.npz",
-               f"{folder}/L120_120_Dr3.000_Dt0.000_r30_p4.5_e3.000_E0.500_h0.100_1000.npz",
-               f"{folder}/L120_120_Dr3.000_Dt0.000_r30_p5_e3.000_E0.500_h0.100_1000.npz",
-              ]
-    f_snaps = [f"{folder}/L240_240_Dr3.000_Dt0.000_r40_p6_e3.000_E0.500_h0.100_1000.npz",
-            #    f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p6_e3.000_E0.500_h0.100_1000.npz",
-               f"{folder}/L240_240_Dr3.000_Dt0.000_r40_p40_e3.000_E0.500_h0.100_1000.npz",
-            #    f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p40_e3.000_E0.500_h0.100_1000.npz",
-            #    f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p42_e3.000_E0.500_h0.100_1000.npz",
-            #    f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p44_e3.000_E0.500_h0.050_1000.npz",
-            #    f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p45_e3.000_E0.500_h0.050_1000.npz",
-                #  f"{folder}/L120_120_Dr2.000_Dt0.000_r40_p8_e3.000_E0.500_h0.100_1000.npz",
-                 f"{folder}/L120_120_Dr1.500_Dt0.000_r80_p20_e3.000_E0.500_h0.025_1000.npz"
-               ]
+    # f_snaps = [
+    #     # f"{folder}/L240_240_Dr3.000_Dt0.000_r40_p40_e3.000_E0.500_h0.100_1000.npz",
+    #     # f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p40_e3.000_E0.500_h0.100_1000.npz",
+    #     f"{folder}/L120_120_Dr3.000_Dt0.000_r30_p28.5_e3.000_E0.500_h0.100_1000.npz",
+    #     f"{folder}/L480_480_Dr3.000_Dt0.000_r30_p28.5_e3.000_E0.500_h0.100_1000.npz",
+    # ]
+    f_snaps = [
+        f"{folder}/L240_240_Dr3.000_Dt0.000_r40_p6_e3.000_E0.500_h0.100_1000.npz",
+        # f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p6_e3.000_E0.500_h0.100_1000.npz",
+    #         #    f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p6_e3.000_E0.500_h0.050_1000.npz",
+        # f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p6_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L240_240_Dr3.000_Dt0.000_r40_p6_e3.000_E0.500_h0.050_1000.npz",
+        f"{folder}/L768_768_Dr5.000_Dt0.000_r20_p5_e3.000_E0.200_h0.050_1000.npz",
+        f"{folder}/L240_240_Dr5.000_Dt0.000_r30_p4_e3.000_E0.500_h0.025_1000.npz",
+        f"{folder}/L360_360_Dr5.000_Dt0.000_r30_p4.5_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p8_e3.000_E0.500_h0.050_1000.npz",
+        # f"{folder}/L360_360_Dr3.000_Dt0.000_r30_p4.5_e3.000_E0.500_h0.100_1000.npz",
+    #         #    f"{folder}/L120_120_Dr2.000_Dt0.000_r40_p6_e3.000_E0.500_h0.100_1000.npz",
+    #         #    f"{folder}/L240_240_Dr3.000_Dt0.000_r40_p40_e3.000_E0.500_h0.100_1000.npz",
+    #         #    f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p40_e3.000_E0.500_h0.100_1000.npz",
+    #         #    f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p42_e3.000_E0.500_h0.050_1000.npz",
+    #            f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p44_e3.000_E0.500_h0.050_1000.npz",
+    #            f"{folder}/L240_240_Dr3.000_Dt0.000_r40_p44_e3.000_E0.500_h0.050_1000.npz",
+    #         #    f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p45_e3.000_E0.500_h0.050_1000.npz",
+    #             #  f"{folder}/L120_120_Dr2.000_Dt0.000_r40_p8_e3.000_E0.500_h0.100_1000.npz",
+    #             #  f"{folder}/L120_120_Dr1.500_Dt0.000_r80_p20_e3.000_E0.500_h0.025_1000.npz"
+    ]
+    # f_snaps = [
+    #     f"{folder}/L768_768_Dr5.000_Dt0.000_r20_p5_e3.000_E0.200_h0.050_1000.npz",
+    #     # f"{folder}/L768_768_Dr5.000_Dt0.000_r20_p16_e3.000_E0.200_h0.050_1000.npz"
+    # ]
+    # f_snaps = [
+    #     f"{folder}/L120_120_Dr5.000_Dt0.000_r20_p2.5_e3.000_E0.500_h0.025_1000.npz",
+    #     # f"{folder}/L120_120_Dr5.000_Dt0.000_r40_p5_e3.000_E0.500_h0.025_1000.npz",
+    #     # f"{folder}/L120_120_Dr5.000_Dt0.000_r40_p6_e3.000_E0.500_h0.025_1000.npz",
+    #     f"{folder}/L120_120_Dr5.000_Dt0.000_r20_p3_e3.000_E0.500_h0.025_1000.npz",
+    #     f"{folder}/L120_120_Dr5.000_Dt0.000_r20_p24_e3.000_E0.500_h0.025_1000.npz",
+    #     f"{folder}/L120_120_Dr5.000_Dt0.000_r20_p28_e3.000_E0.500_h0.025_1000.npz",
+    #     f"{folder}/L120_120_Dr5.000_Dt0.000_r20_p30_e3.000_E0.500_h0.025_1000.npz",
+    # ]
+
+    f_snaps = [
+        # f"{folder}/L120_120_Dr5.000_Dt0.000_r20_p2.5_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L120_120_Dr5.000_Dt0.000_r20_p3_e3.000_E0.500_h0.025_1000.npz",
+        f"{folder}/L240_240_Dr5.000_Dt0.000_r20_p3_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L360_360_Dr5.000_Dt0.000_r20_p3_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L120_120_Dr5.000_Dt0.000_r20_p28_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L120_120_Dr5.000_Dt0.000_r20_p24_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L240_240_Dr5.000_Dt0.000_r20_p24_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L240_240_Dr5.000_Dt0.000_r20_p28_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L480_480_Dr5.000_Dt0.000_r20_p28_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L120_120_Dr5.000_Dt0.000_r20_p30_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L120_120_Dr5.000_Dt0.000_r20_p30_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L120_120_Dr5.000_Dt0.000_r30_p4_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L240_240_Dr5.000_Dt0.000_r30_p4_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L360_360_Dr5.000_Dt0.000_r30_p4.5_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L110_110_Dr5.000_Dt0.000_r80_p18_e3.000_E0.100_h0.025_1000.npz",
+        # f"{folder}/L110_110_Dr5.000_Dt0.000_r80_p20_e3.000_E0.100_h0.025_1000.npz",
+        # f"{folder}/L110_110_Dr5.000_Dt0.000_r80_p24_e3.000_E0.100_h0.025_1000.npz",
+        # # f"{folder}/L110_110_Dr5.000_Dt0.000_r80_p28_e3.000_E0.100_h0.025_1000.npz",
+        # f"{folder}/L110_110_Dr5.000_Dt0.000_r40_p10_e3.000_E0.100_h0.025_1000.npz",
+        # f"{folder}/L220_220_Dr5.000_Dt0.000_r40_p10_e3.000_E0.100_h0.025_1000.npz",
+        f"{folder}/L120_120_Dr1.800_Dt0.000_r80_p20_e3.000_E0.250_h0.025_1000.npz",
+        # f"{folder}/L120_120_Dr1.800_Dt0.000_r80_p22_e3.000_E0.250_h0.025_1000.npz",
+        # f"{folder}/L120_120_Dr1.800_Dt0.000_r40_p10_e3.000_E0.250_h0.025_1000.npz",
+        # # f"{folder}/L120_120_Dr1.800_Dt0.000_r80_p24_e3.000_E0.250_h0.025_1000.npz",
+        # f"{folder}/L120_120_Dr1.800_Dt0.000_r80_p52_e3.000_E0.250_h0.025_1000.npz",
+        # f"{folder}/L120_120_Dr1.800_Dt0.000_r80_p56_e3.000_E0.250_h0.025_1000.npz",
+        # f"{folder}/L120_120_Dr5.000_Dt0.000_r30_p42_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L120_120_Dr5.000_Dt0.000_r30_p43.5_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L240_240_Dr5.000_Dt0.000_r30_p43.5_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L360_360_Dr5.000_Dt0.000_r30_p43.5_e3.000_E0.500_h0.025_1000.npz",
+        # f"{folder}/L240_240_Dr5.000_Dt0.000_r30_p44_e3.000_E0.500_h0.05_1000.npz",
+        # f"{folder}/L120_120_Dr5.000_Dt0.000_r30_p45_e3.000_E0.500_h0.025_1000.npz",
+    ]
+    # f_snaps = [
+    #     # f"{folder}/L120_120_Dr5.000_Dt0.000_r20_p3_e3.000_E0.500_h0.025_1000.npz",
+    #     # f"{folder}/L240_240_Dr5.000_Dt0.000_r20_p3_e3.000_E0.500_h0.025_1000.npz",
+    #     # f"{folder}/L240_240_Dr3.000_Dt0.000_r40_p6_e3.000_E0.500_h0.100_1000.npz",
+    #     # f"{folder}/L120_120_Dr5.000_Dt0.000_r30_p4_e3.000_E0.500_h0.025_1000.npz",
+    #     # f"{folder}/L240_240_Dr5.000_Dt0.000_r30_p4_e3.000_E0.500_h0.025_1000.npz",
+    #     f"{folder}/L152_152_Dr1.000_Dt0.000_r20_p15_e-2.000_E-0.900_h0.050_1000.npz",
+    #     f"{folder}/L304_304_Dr1.000_Dt0.000_r20_p15_e-2.000_E-0.900_h0.100_1000.npz",
+    #     # f"{folder}/L120_120_Dr5.000_Dt0.000_r30_p43.5_e3.000_E0.500_h0.025_1000.npz",
+    #     # f"{folder}/L240_240_Dr5.000_Dt0.000_r30_p43.5_e3.000_E0.500_h0.025_1000.npz",
+    # ]
+    # f_snaps = [
+    #     f"{folder}/L120_120_Dr5.000_Dt0.000_r40_p6_e3.000_E0.500_h0.025_1000.npz",
+    #     f"{folder}/L120_120_Dr5.000_Dt0.000_r40_p45_e3.000_E0.500_h0.025_1000.npz",
+    #     f"{folder}/L120_120_Dr3.000_Dt0.000_r40_p6_e3.000_E0.500_h0.025_1000.npz",
+    #     f"{folder}/L240_240_Dr3.000_Dt0.000_r40_p6_e3.000_E0.500_h0.050_1000.npz",
+    #     f"{folder}/L240_240_Dr3.000_Dt0.000_r40_p44_e3.000_E0.500_h0.050_1000.npz"
+    # ]
     dx = 0.25
     mk = ["o", "s", "p", ">", "*", "<", "+"]
     fig, ax = plt.subplots(1, 1, constrained_layout=True, figsize=(8, 8))
@@ -163,9 +248,9 @@ if __name__ == "__main__":
 
     add_line(ax, 0, 0, 1, 1/3)
     add_line(ax, 0.12, 0, 1, 1/3)
-    # add_line(ax, 0.1, 0, 1, 1/8)
+    add_line(ax, 0.25, 0, 1, 1/3)
     add_line(ax, 0, 0, 1, 1/4)
-    add_line(ax, 0, 0.05, 1, 1/4)
+    add_line(ax, 0.25, 0, 1, 1/4)
     # add_line(ax, 0.4, 0, 1, 1/2)
     plt.show()
     plt.close()

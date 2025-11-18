@@ -131,9 +131,17 @@ def PD_rho_Dr(eps, ms=0.05, frac=1., eta0=3):
         seed = 1000
         root = "/mnt/sda/Fore_aft_QS/Offset/L30_r80"
         # rho_arr = np.array([10, 30, 50, 70, 90, 110])
-        rho_arr = np.array([10, 20, 40, 60, 80, 100])
-        Dr_arr = np.array([0.1, 0.3, 1, 1.5, 3])
-        # Dr_arr = np.array([0.1, 0.5, 1, 1.5, 2, 3])
+        rho_arr = np.array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110])
+        Dr_arr = np.array([0.1, 0.2, 0.3, 0.5, 0.7, 1, 1.5, 2, 2.5, 3])
+    elif eps == 0.25:
+        L = 20
+        rho0 = 80
+        h = 0.025
+        seed = 1000
+        root = "/mnt/sda/Fore_aft_QS/Offset/L20_r80_eps0.25"
+        rho_arr = np.array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120])
+        Dr_arr = np.array([0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.2, 1.5, 2.0, 2.5, 3.0])
+
     nrows = Dr_arr.size
     ncols = rho_arr.size
     if ncols == nrows:
@@ -164,7 +172,7 @@ def PD_rho_Dr(eps, ms=0.05, frac=1., eta0=3):
     add_xlabel(fig, axes, "bottom", "", rho_arr / 80, fontsize)
     add_ylabel(fig, axes, "left", "", Dr_arr, fontsize, vertical=True, reverse=True)
 
-    fout_name = f"fig/snaps2.jpg"
+    fout_name = f"fig/snaps_eps{eps:g}.jpg"
 
     plt.savefig(fout_name, dpi=200)
     # plt.show()
@@ -224,7 +232,8 @@ if __name__ == "__main__":
     # fname = f"{epyc01}/{folder}/L20_20_Dr0.100_Dt0.000_r80_p80_e-2.000_E0.000_h0.100_1000.gsd"
     # plot_one_panel(fname, color_coding="ori")
 
-    PD_rho_Dr_PRL(eps=0.5, frac=0.5, ms=0.05)
+    PD_rho_Dr(eps=0.25, frac=0.5, ms=0.05)
+    # PD_rho_Dr_PRL(eps=0.5, frac=0.5, ms=0.05)
 
     # Dr_arr = np.array([0.01, 0.02, 0.04, 0.06, 0.08, 0.1, 0.2, 0.4, 0.6, 0.8, 1])
     # gamma_arr = np.array([0.01, 0.02, 0.04, 0.06, 0.08, 0.1, 0.2, 0.4, 0.6, 0.8, 1, 2, 4, 6, 8, 10, 20])
